@@ -207,6 +207,8 @@
       <div class="final-content">
         <!-- Chips Container for Sharing/Download -->
         <div class="chips-container" id="chips-container">
+          <!-- Top Text -->
+          <div class="top-text">Cook ma Chips !</div>
           <!-- Decorative Potato Images -->
           <div class="decoration-chips left-top">
             <img src="/images/potato.svg" alt="Potato" width="60" height="40" />
@@ -1518,6 +1520,23 @@ const goBackToStart = () => {
   .ingredient-sauce {
     background-color: rgba($color: #ff6500, $alpha: 0.8);
   }
+}
+/* Top Text */
+.top-text {
+  position: absolute;
+  top: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Dekko', sans-serif;
+  color: var(--purple);
+  font-size: 1.5rem;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  word-spacing: 2px;
+  font-weight: 400;
+  line-height: 1.2;
 }
 
 /* Bottom Text */

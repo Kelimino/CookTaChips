@@ -145,6 +145,7 @@ const goBackToStart = () => {
     <header class="app-header">
       <a href="#" class="header-logo-link" @click.prevent="goBackToStart">
         <img src="/images/CookTaChips.svg" alt="CookTaChips" class="header-logo" />
+        Desktop version 1.0
       </a>
       <a
         href="https://www.kellig.fr/"
@@ -247,7 +248,12 @@ const goBackToStart = () => {
 .header-logo-link {
   text-decoration: none;
   transition: transform 0.2s ease;
+  font-size: 0.75rem;
   cursor: pointer;
+  color: var(--purple);
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .header-logo-link:hover {
