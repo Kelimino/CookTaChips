@@ -176,7 +176,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background: var(--yellow);
+  background: radial-gradient(circle, rgba(247, 243, 223, 1) 0%, rgba(251, 219, 147, 1) 100%);
 }
 
 .container {

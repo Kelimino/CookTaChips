@@ -180,6 +180,16 @@
 
     <!-- Final Chips Result -->
     <div v-if="finalState.isVisible" class="final-overlay">
+      <!-- Fireworks Background Animation -->
+      <div v-if="fireworksAnimation" class="fireworks-background">
+        <Vue3Lottie
+          :animationData="fireworksAnimation"
+          :height="100"
+          :width="100"
+          :loop="true"
+          :autoPlay="true"
+        />
+      </div>
       <!-- Close Button -->
       <button class="close-button" @click="closeFinalState">
         <svg
@@ -300,6 +310,7 @@ const diceAnimationRef = ref(null)
 // Lottie animation data
 const smokeAnimation = ref(null)
 const diceAnimation = ref(null)
+const fireworksAnimation = ref(null)
 
 // Modal state
 const modalState = reactive({
@@ -476,6 +487,9 @@ onMounted(async () => {
 
     const diceResponse = await fetch('/images/dice.json')
     diceAnimation.value = await diceResponse.json()
+
+    const fireworksResponse = await fetch('/images/fireworks.json')
+    fireworksAnimation.value = await fireworksResponse.json()
   } catch (error) {
     console.error('Error loading Lottie animation:', error)
   }
@@ -1003,13 +1017,16 @@ const goBackToStart = () => {
   transform: scale(1.05);
   box-shadow: 0 6px 20px rgba(44, 62, 80, 0.4);
 }
+.action-button:hover .action-icon {
+  height: 100px;
+  transform: translateX(-13px) rotate(-13deg);
+}
 
 .action-icon {
   width: auto;
-  height: 60px;
-  width: auto;
   height: 100px;
   transform: translateX(-15px) rotate(-15deg);
+  transition: all 0.3s linear;
 }
 
 /* Cookbook Modal Styles */
@@ -1245,6 +1262,22 @@ const goBackToStart = () => {
   animation: finalFadeIn 0.8s ease-out;
 }
 
+.fireworks-background {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+
+  > div {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
 @keyframes finalFadeIn {
   from {
     opacity: 0;
@@ -1265,6 +1298,7 @@ const goBackToStart = () => {
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+  z-index: 2;
 }
 
 .close-button {
