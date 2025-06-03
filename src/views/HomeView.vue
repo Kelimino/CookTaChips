@@ -101,7 +101,7 @@
 
         <button class="action-button" @click="startCooking">
           <img src="/images/oven-icon.png" alt="Four" class="action-icon" />
-          <span class="action-text">C’est prêt ! </span>
+          <span class="action-text">C'est prêt ! </span>
         </button>
       </div>
     </div>
@@ -115,26 +115,6 @@
       @close="closeModal"
       @select="selectIngredient"
     />
-
-    <!-- Cookbook Modal -->
-    <div v-if="cookbookState.isOpen" class="modal-overlay" @click="closeCookbook">
-      <div class="modal-content cookbook-modal" @click.stop>
-        <div class="modal-header">
-          <img src="/images/cookbook-3d.png" alt="Livre de cuisine" class="modal-image" />
-          <h3 class="modal-title">Plats classiques</h3>
-        </div>
-        <div class="dishes-list">
-          <div
-            v-for="dish in classicDishes"
-            :key="dish"
-            class="dish-item"
-            @click="selectDish(dish)"
-          >
-            {{ dish }}
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Loading Screen -->
     <div v-if="loadingState.isLoading" class="loading-overlay" ref="loadingOverlay">
@@ -296,7 +276,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { Vue3Lottie } from 'vue3-lottie'
-import { gsap } from 'gsap' // ADD THIS LINE
+import { gsap } from 'gsap'
 import IngredientModal from '../components/IngredientModal.vue'
 import IngredientTag from '../components/IngredientTag.vue'
 import html2canvas from 'html2canvas'
@@ -305,10 +285,7 @@ import html2canvas from 'html2canvas'
 const selectedIngredients = ref([])
 
 // Loading overlay ref for GSAP animation
-const loadingOverlay = ref(null) // ADD THIS LINE
-
-// Dice spinning state
-const isDiceSpinning = ref(false)
+const loadingOverlay = ref(null)
 
 // Dice animation ref
 const diceAnimationRef = ref(null)
@@ -326,11 +303,6 @@ const modalState = reactive({
   ingredients: [],
 })
 
-// Cookbook modal state
-const cookbookState = reactive({
-  isOpen: false,
-})
-
 // Loading state
 const loadingState = reactive({
   isLoading: false,
@@ -340,22 +312,6 @@ const loadingState = reactive({
 const finalState = reactive({
   isVisible: false,
 })
-
-// Classic dishes list
-const classicDishes = [
-  'Kebab',
-  'Boeuf-bourguignon',
-  'Pot-au-feu',
-  'Blanquette de veau',
-  'Cassoulet',
-  'Poulet basquaise',
-  'Fondue savoyarde',
-  'Quiche lorraine',
-  'Coq au vin',
-  'Ratatouille',
-  'Bouillabaisse',
-  'Choucroute garnie',
-]
 
 // Computed property for dynamic bag selection
 const selectedBagImage = computed(() => {
@@ -460,7 +416,7 @@ const ingredientData = {
       { id: 'meat-11', name: 'Crevettes', category: 'meat' },
       { id: 'meat-12', name: 'Kebab', category: 'meat' },
       { id: 'meat-13', name: 'Saucisson', category: 'meat' },
-      { id: 'meat-13', name: 'Saumon', category: 'meat' },
+      { id: 'meat-14', name: 'Saumon', category: 'meat' },
     ],
   },
   sauce: {
@@ -513,9 +469,6 @@ const randomCombination = () => {
   // Play dice animation
   playDiceAnimation()
 
-  // Start dice animation
-  isDiceSpinning.value = true
-
   // Clear current selection
   selectedIngredients.value = []
 
@@ -528,11 +481,6 @@ const randomCombination = () => {
       selectedIngredients.value.push(randomIngredient)
     }
   })
-
-  // Stop dice animation after 1 second
-  setTimeout(() => {
-    isDiceSpinning.value = false
-  }, 1000)
 }
 
 const openModal = (type) => {
@@ -563,19 +511,6 @@ const selectIngredient = (ingredient) => {
 
 const removeIngredient = (ingredientId) => {
   selectedIngredients.value = selectedIngredients.value.filter((item) => item.id !== ingredientId)
-}
-
-const openCookbook = () => {
-  cookbookState.isOpen = true
-}
-
-const closeCookbook = () => {
-  cookbookState.isOpen = false
-}
-
-const selectDish = (dish) => {
-  console.log('Selected dish:', dish)
-  closeCookbook()
 }
 
 const closeFinalState = () => {
@@ -631,105 +566,6 @@ const downloadChipsImage = async () => {
   }
 }
 
-const shareChips = async () => {
-  const chipsContainer = document.getElementById('chips-container')
-  if (chipsContainer) {
-    try {
-      // Generate image for sharing
-      const canvas = await html2canvas(chipsContainer, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        width: chipsContainer.offsetWidth,
-        height: chipsContainer.offsetHeight,
-        scrollX: 0,
-        scrollY: 0,
-      })
-
-      // Convert to blob
-      canvas.toBlob(
-        async (blob) => {
-          if (blob) {
-            const ingredientText = selectedIngredients.value.map((ing) => ing.name).join(' & ')
-
-            // Check if Web Share API with files is supported
-            if (
-              navigator.share &&
-              navigator.canShare &&
-              navigator.canShare({ files: [new File([blob], 'chips.png', { type: 'image/png' })] })
-            ) {
-              try {
-                const file = new File(
-                  [blob],
-                  `mes-chips-${ingredientText.toLowerCase().replace(/\s+/g, '-')}.png`,
-                  { type: 'image/png' },
-                )
-                await navigator.share({
-                  title: 'Mes Chips Personnalisés',
-                  text: `J'ai créé mes propres chips avec: ${ingredientText}`,
-                  files: [file],
-                })
-              } catch (shareError) {
-                console.log('User canceled sharing or error occurred:', shareError)
-              }
-            } else if (navigator.share) {
-              // Fallback to sharing without image
-              try {
-                await navigator.share({
-                  title: 'Mes Chips Personnalisés',
-                  text: `J'ai créé mes propres chips avec: ${ingredientText}`,
-                  url: window.location.href,
-                })
-              } catch (shareError) {
-                console.log('User canceled sharing:', shareError)
-              }
-            } else {
-              // Fallback for browsers without Web Share API
-              copyImageToClipboard(blob, ingredientText)
-            }
-          }
-        },
-        'image/png',
-        1.0,
-      )
-    } catch (error) {
-      console.error('Error generating image for sharing:', error)
-      alert("Erreur lors de la génération de l'image. Veuillez réessayer.")
-    }
-  }
-}
-
-// Fallback function for copying image to clipboard
-const copyImageToClipboard = async (blob, ingredientText) => {
-  try {
-    if (navigator.clipboard && window.ClipboardItem) {
-      const clipboardItem = new ClipboardItem({ 'image/png': blob })
-      await navigator.clipboard.write([clipboardItem])
-      alert(`Image copiée dans le presse-papiers! Chips saveur: ${ingredientText}`)
-    } else {
-      // Ultimate fallback - create a temporary URL and copy text
-      const textToCopy = `J'ai créé mes propres chips avec: ${ingredientText}. Découvre l'app sur ${window.location.href}`
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(textToCopy)
-        alert('Texte copié dans le presse-papiers!')
-      } else {
-        // Create a temporary textarea for older browsers
-        const textarea = document.createElement('textarea')
-        textarea.value = textToCopy
-        document.body.appendChild(textarea)
-        textarea.select()
-        document.execCommand('copy')
-        document.body.removeChild(textarea)
-        alert('Texte copié dans le presse-papiers!')
-      }
-    }
-  } catch (error) {
-    console.error('Error copying to clipboard:', error)
-    alert("Impossible de copier. Essayez de faire une capture d'écran.")
-  }
-}
-
 const startCooking = () => {
   console.log('Starting cooking process with ingredients:', selectedIngredients.value)
 
@@ -758,10 +594,6 @@ const startCooking = () => {
     loadingState.isLoading = false
     finalState.isVisible = true
   }, 5200)
-}
-const goBackToStart = () => {
-  // Emit event to parent component to show splash screen again
-  window.location.reload()
 }
 </script>
 
@@ -967,29 +799,6 @@ const goBackToStart = () => {
   opacity: 1;
 }
 
-/* Dice spinning animation */
-.dice-spinning {
-  animation: diceRoll 1s ease-in-out;
-}
-
-@keyframes diceRoll {
-  0% {
-    transform: rotate(0deg) rotateX(0deg) rotateY(0deg);
-  }
-  25% {
-    transform: rotate(90deg) rotateX(180deg) rotateY(90deg) scale(1.1);
-  }
-  50% {
-    transform: rotate(180deg) rotateX(360deg) rotateY(180deg) scale(1.2);
-  }
-  75% {
-    transform: rotate(270deg) rotateX(540deg) rotateY(270deg) scale(1.1);
-  }
-  100% {
-    transform: rotate(360deg) rotateX(720deg) rotateY(360deg) scale(1);
-  }
-}
-
 .bottom-app-bar {
   padding-bottom: 16px;
   border-bottom: solid 1px rgba(0, 0, 0, 0.1);
@@ -1051,35 +860,6 @@ const goBackToStart = () => {
   transition: all 0.3s linear;
 }
 
-/* Cookbook Modal Styles */
-.cookbook-modal {
-  min-width: 350px;
-  max-width: 450px;
-}
-
-.dishes-list {
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.dish-item {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  font-size: 1rem;
-  color: #333;
-  font-weight: 500;
-}
-
-.dish-item:hover {
-  background-color: #f8f9fa;
-}
-
-.dish-item:last-child {
-  border-bottom: none;
-}
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1091,38 +871,6 @@ const goBackToStart = () => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  padding: 0;
-  min-width: 300px;
-  max-width: 400px;
-  max-height: 80vh;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.modal-image {
-  width: 54px;
-  height: 54px;
-  object-fit: contain;
-}
-
-.modal-title {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
 }
 
 /* Loading Screen Styles */
@@ -1586,16 +1334,5 @@ const goBackToStart = () => {
   background: #f8f9fa;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.share-btn {
-  background: var(--purple);
-  color: white;
-}
-
-.share-btn:hover {
-  background: var(--purple);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 </style>

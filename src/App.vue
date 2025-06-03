@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { gsap } from 'gsap'
 import HomeView from './views/HomeView.vue'
 import ChipsWheel from './components/ChipsWheel.vue'
@@ -175,11 +175,6 @@ const goBackToStart = () => {
 </template>
 
 <style scoped>
-:root {
-  --yellow: #fbdb93;
-  --brown: #cbb37e;
-}
-
 .app-container {
   width: 100%;
   height: 100vh;
