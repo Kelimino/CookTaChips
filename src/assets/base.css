@@ -45,6 +45,7 @@
 /* semantic color variables for this project */
 :root {
   --yellow: #fbdb93;
+  --brown: #cbb37e;
   --purple: #210f37;
   --color-background: var(--vt-c-white);
   --color-background-soft: var(--vt-c-white-soft);

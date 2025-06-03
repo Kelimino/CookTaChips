@@ -1,27 +1,151 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { gsap } from 'gsap'
 import HomeView from './views/HomeView.vue'
 import ChipsWheel from './components/ChipsWheel.vue'
 
 const showSplash = ref(true)
 const isTransitioning = ref(false)
+const overlayPath = ref(null)
+
+// SVG paths for the gooey transition
+const paths = {
+  step1: {
+    unfilled: 'M 0 100 V 100 Q 50 100 100 100 V 100 z',
+    inBetween: {
+      curve1: 'M 0 100 V 50 Q 50 0 100 50 V 100 z',
+      curve2: 'M 0 100 V 50 Q 50 100 100 50 V 100 z',
+    },
+    filled: 'M 0 100 V 0 Q 50 0 100 0 V 100 z',
+  },
+  step2: {
+    filled: 'M 0 0 V 100 Q 50 100 100 100 V 0 z',
+    inBetween: {
+      curve1: 'M 0 0 V 50 Q 50 0 100 50 V 0 z',
+      curve2: 'M 0 0 V 50 Q 50 100 100 50 V 0 z',
+    },
+    unfilled: 'M 0 0 V 0 Q 50 0 100 0 V 0 z',
+  },
+}
 
 const handleStartCooking = () => {
+  if (isTransitioning.value) return
   isTransitioning.value = true
-  setTimeout(() => {
-    showSplash.value = false
-    isTransitioning.value = false
-  }, 200) // Duration matches the CSS transition
+
+  // Start the gooey transition from splash to home
+  gsap
+    .timeline({
+      onComplete: () => {
+        isTransitioning.value = false
+      },
+    })
+    .set(overlayPath.value, {
+      attr: { d: paths.step1.unfilled },
+    })
+    .to(
+      overlayPath.value,
+      {
+        duration: 0.8,
+        ease: 'power4.in',
+        attr: { d: paths.step1.inBetween.curve1 },
+      },
+      0,
+    )
+    .to(overlayPath.value, {
+      duration: 0.2,
+      ease: 'power1',
+      attr: { d: paths.step1.filled },
+      onComplete: () => {
+        showSplash.value = false
+      },
+    })
+    .set(overlayPath.value, {
+      attr: { d: paths.step2.filled },
+    })
+    .to(overlayPath.value, {
+      duration: 0.2,
+      ease: 'sine.in',
+      attr: { d: paths.step2.inBetween.curve1 },
+    })
+    .to(overlayPath.value, {
+      duration: 1,
+      ease: 'power4',
+      attr: { d: paths.step2.unfilled },
+    })
+}
+
+const goBackToStart = () => {
+  if (isTransitioning.value || showSplash.value) return
+  isTransitioning.value = true
+
+  // Start the gooey transition from home back to splash
+  gsap
+    .timeline({
+      onComplete: () => {
+        isTransitioning.value = false
+      },
+    })
+    .set(overlayPath.value, {
+      attr: { d: paths.step2.unfilled },
+    })
+    .to(
+      overlayPath.value,
+      {
+        duration: 0.8,
+        ease: 'power4.in',
+        attr: { d: paths.step2.inBetween.curve2 },
+      },
+      0,
+    )
+    .to(overlayPath.value, {
+      duration: 0.2,
+      ease: 'power1',
+      attr: { d: paths.step2.filled },
+      onComplete: () => {
+        showSplash.value = true
+      },
+    })
+    .set(overlayPath.value, {
+      attr: { d: paths.step1.filled },
+    })
+    .to(overlayPath.value, {
+      duration: 0.2,
+      ease: 'sine.in',
+      attr: { d: paths.step1.inBetween.curve2 },
+    })
+    .to(overlayPath.value, {
+      duration: 1,
+      ease: 'power4',
+      attr: { d: paths.step1.unfilled },
+    })
 }
 </script>
 
 <template>
   <div class="app-container">
+    <!-- SVG Overlay for gooey transition -->
+    <div class="overlay" :class="{ 'overlay--active': isTransitioning }">
+      <svg class="overlay__svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="gooeyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color: var(--yellow); stop-opacity: 1" />
+            <stop offset="100%" style="stop-color: var(--brown); stop-opacity: 1" />
+          </linearGradient>
+        </defs>
+        <path
+          ref="overlayPath"
+          class="overlay__path"
+          d="M 0 100 V 100 Q 50 100 100 100 V 100 z"
+          fill="url(#gooeyGradient)"
+        />
+      </svg>
+    </div>
+
     <!-- Header -->
     <header class="app-header">
-      <router-link to="/" class="header-logo-link" @click="goBackToStart">
+      <a href="#" class="header-logo-link" @click.prevent="goBackToStart">
         <img src="/images/CookTaChips.svg" alt="CookTaChips" class="header-logo" />
-      </router-link>
+      </a>
       <a
         href="https://www.kellig.fr/"
         target="_blank"
@@ -31,78 +155,84 @@ const handleStartCooking = () => {
         <img src="/images/kellig.svg" alt="Kellig.fr" class="website-logo" />
       </a>
     </header>
-    <Transition
-      name="dissolve"
-      mode="out-in"
-      @before-enter="isTransitioning = true"
-      @after-enter="isTransitioning = false"
-    >
-      <ChipsWheel v-if="showSplash" @start-cooking="handleStartCooking" key="splash" />
-      <HomeView v-else key="home" />
-    </Transition>
+
+    <!-- Content Views -->
+    <div class="content-container">
+      <ChipsWheel
+        v-if="showSplash"
+        @start-cooking="handleStartCooking"
+        class="view view--splash"
+        :class="{ 'view--hidden': isTransitioning && !showSplash }"
+      />
+      <HomeView
+        v-if="!showSplash"
+        class="view view--home"
+        :class="{ 'view--hidden': isTransitioning && showSplash }"
+      />
+    </div>
   </div>
 </template>
 
 <style scoped>
+:root {
+  --yellow: #fbdb93;
+  --brown: #cbb37e;
+}
+
 .app-container {
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
-/* Dissolve transition */
-.dissolve-enter-active,
-.dissolve-leave-active {
-  transition: opacity 0.3s ease-in-out;
+.content-container {
+  width: 100%;
+  height: 100vh;
+  position: relative;
 }
 
-.dissolve-enter-from {
+.view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s ease;
+}
+
+.view--hidden {
   opacity: 0;
+  pointer-events: none;
 }
 
-.dissolve-leave-to {
+/* SVG Overlay Styles */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
   opacity: 0;
+  transition: opacity 0.1s ease;
 }
 
-.dissolve-enter-to,
-.dissolve-leave-from {
+.overlay--active {
   opacity: 1;
 }
 
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
+.overlay__svg {
   width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+  height: 100%;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.overlay__path {
+  fill: url(#gooeyGradient);
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
+/* Header Styles */
 .app-header {
   display: flex;
   justify-content: space-between;
@@ -111,11 +241,17 @@ nav a:first-of-type {
   width: 100%;
   z-index: 100;
   position: fixed;
+  top: 0;
 }
 
 .header-logo-link {
   text-decoration: none;
   transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.header-logo-link:hover {
+  transform: scale(1.05);
 }
 
 .header-logo {
@@ -129,35 +265,28 @@ nav a:first-of-type {
   transition: transform 0.2s ease;
 }
 
+.website-link:hover {
+  transform: scale(1.05);
+}
+
 .website-logo {
   height: 24px;
   width: auto;
   object-fit: contain;
 }
+
+/* Responsive Design */
 @media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+  .app-header {
+    padding: 1.5rem 3rem;
   }
 
-  .logo {
-    margin: 0 2rem 0 0;
+  .header-logo {
+    height: 48px;
   }
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+  .website-logo {
+    height: 28px;
   }
 }
 </style>
