@@ -225,6 +225,8 @@ svg {
   font-size: 6rem;
   color: #fff;
   margin-bottom: 20px;
+  text-align: center;
+  white-space: nowrap;
 
   em {
     font-size: 4rem;
