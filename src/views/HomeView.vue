@@ -335,8 +335,8 @@ const selectedBagImage = computed(() => {
 
   // Map categories to bag colors with 3 variants each
   const bagColorMap = {
-    vegetables: ['bag-green-1.png', 'bag-red-2.png', 'bag-green-3.png'],
-    spices: ['bag-red-1.png', 'bag-green-2.png', 'bag-red-3.png'],
+    vegetables: ['bag-green-1.png', 'bag-red-2.png', 'bag-green-3.png', 'bag-yellow-1.png'],
+    spices: ['bag-red-1.png', 'bag-green-2.png', 'bag-red-3.png', 'bag-green-1.png'],
     dairy: ['bag-white-1.png', 'bag-white-2.png', 'bag-white-3.png'],
     meat: ['bag-meat-1.png', 'bag-meat-2.png', 'bag-meat-3.png'],
     sauce: ['bag-yellow-1.png', 'bag-yellow-2.png', 'bag-yellow-3.png'],
