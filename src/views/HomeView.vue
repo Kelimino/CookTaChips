@@ -137,7 +137,7 @@
     </div>
 
     <!-- Loading Screen -->
-    <div v-if="loadingState.isLoading" class="loading-overlay">
+    <div v-if="loadingState.isLoading" class="loading-overlay" ref="loadingOverlay">
       <div class="loading-content">
         <!-- Central Chips Image -->
         <div class="central-chips">
@@ -292,14 +292,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { Vue3Lottie } from 'vue3-lottie'
+import { gsap } from 'gsap' // ADD THIS LINE
 import IngredientModal from '../components/IngredientModal.vue'
 import IngredientTag from '../components/IngredientTag.vue'
 import html2canvas from 'html2canvas'
 
 // Selected ingredients state
 const selectedIngredients = ref([])
+
+// Loading overlay ref for GSAP animation
+const loadingOverlay = ref(null) // ADD THIS LINE
 
 // Dice spinning state
 const isDiceSpinning = ref(false)
@@ -730,13 +734,29 @@ const startCooking = () => {
   // Show loading state
   loadingState.isLoading = true
 
-  // Hide loading state and show final state after 5 seconds
+  // Wait for next tick to ensure the DOM is updated
+  nextTick(() => {
+    if (loadingOverlay.value) {
+      // Set initial state - small circle
+      gsap.set(loadingOverlay.value, {
+        clipPath: 'circle(0% at 50% 50%)',
+      })
+
+      // Animate to large circle that covers everything
+      gsap.to(loadingOverlay.value, {
+        clipPath: 'circle(100% at 50% 50%)',
+        duration: 1.2,
+        ease: 'power2.out',
+      })
+    }
+  })
+
+  // Hide loading state and show final state after 5.2 seconds
   setTimeout(() => {
     loadingState.isLoading = false
     finalState.isVisible = true
-  }, 4000)
+  }, 5200)
 }
-
 const goBackToStart = () => {
   // Emit event to parent component to show splash screen again
   window.location.reload()
