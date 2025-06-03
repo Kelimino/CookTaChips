@@ -188,7 +188,7 @@
         <!-- Chips Container for Sharing/Download -->
         <div class="chips-container" id="chips-container">
           <!-- Top Text -->
-          <div class="top-text">Cook ma Chips !</div>
+          <div class="top-text">J'ai Cook ma Chips !</div>
           <!-- Decorative Potato Images -->
           <div class="decoration-chips left-top">
             <img src="/images/potato.svg" alt="Potato" width="60" height="40" />
