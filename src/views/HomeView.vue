@@ -722,6 +722,11 @@ const startCooking = () => {
     finalState.isVisible = true
   }, 4000)
 }
+
+const goBackToStart = () => {
+  // Emit event to parent component to show splash screen again
+  window.location.reload()
+}
 </script>
 
 <style scoped lang="scss">
@@ -732,7 +737,6 @@ const startCooking = () => {
   background: #fbdb93;
   position: relative;
 }
-
 .main-content {
   flex: 1;
   display: flex;

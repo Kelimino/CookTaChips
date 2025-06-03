@@ -17,6 +17,20 @@ const handleStartCooking = () => {
 
 <template>
   <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <router-link to="/" class="header-logo-link" @click="goBackToStart">
+        <img src="/images/CookTaChips.svg" alt="CookTaChips" class="header-logo" />
+      </router-link>
+      <a
+        href="https://www.kellig.fr/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="website-link"
+      >
+        <img src="/images/kellig.svg" alt="Kellig.fr" class="website-logo" />
+      </a>
+    </header>
     <Transition
       name="dissolve"
       mode="out-in"
@@ -89,7 +103,40 @@ nav a {
 nav a:first-of-type {
   border: 0;
 }
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  width: 100%;
+  z-index: 100;
+  position: fixed;
+}
 
+.header-logo-link {
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.website-link {
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.website-logo {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+}
+.website-logo:hover {
+  background: transparent;
+}
 @media (min-width: 1024px) {
   header {
     display: flex;
