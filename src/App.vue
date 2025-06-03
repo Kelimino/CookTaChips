@@ -134,9 +134,6 @@ nav a:first-of-type {
   width: auto;
   object-fit: contain;
 }
-.website-logo:hover {
-  background: transparent;
-}
 @media (min-width: 1024px) {
   header {
     display: flex;
