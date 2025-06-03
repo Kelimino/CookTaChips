@@ -37,6 +37,16 @@
       <!-- Bottom App Bar (Dock Style) -->
       <div class="bottom-app-bar">
         <div class="dock-container">
+          <!-- 3D Cookbook -->
+          <div class="dock-item chef-cook disabled" title="Coming Soon">
+            <img
+              src="/images/chef-cook.png"
+              alt="Livre de cuisine"
+              class="dock-icon chef-cook-icon"
+            />
+            <div class="tooltip">Bientôt</div>
+          </div>
+
           <!-- 5 Modal Icons -->
           <div class="dock-item" @click="openModal('vegetables')">
             <img src="/images/vegetables-icon.png" alt="Légumes" class="dock-icon" />
@@ -59,12 +69,13 @@
           </div>
 
           <!-- 3D Cookbook -->
-          <div class="dock-item cookbook" @click="openCookbook">
+          <div class="dock-item cookbook disabled" title="Coming Soon">
             <img
               src="/images/cookbook-3d.png"
               alt="Livre de cuisine"
               class="dock-icon cookbook-icon"
             />
+            <div class="tooltip">Bientôt</div>
           </div>
         </div>
       </div>
@@ -351,7 +362,7 @@ const selectedBagImage = computed(() => {
     vegetables: ['bag-green-1.png', 'bag-green-2.png', 'bag-green-3.png'],
     spices: ['bag-red-1.png', 'bag-red-2.png', 'bag-red-3.png'],
     dairy: ['bag-white-1.png', 'bag-white-2.png', 'bag-white-3.png'],
-    meat: ['bag-red-1.png', 'bag-red-2.png', 'bag-red-3.png'],
+    meat: ['bag-meat-1.png', 'bag-meat-2.png', 'bag-meat-3.png'],
     sauce: ['bag-yellow-1.png', 'bag-yellow-2.png', 'bag-yellow-3.png'],
   }
 
@@ -375,6 +386,9 @@ const ingredientData = {
       { id: 'veg-4', name: 'Courgettes', category: 'vegetables' },
       { id: 'veg-5', name: 'Aubergines', category: 'vegetables' },
       { id: 'veg-6', name: 'Champignons', category: 'vegetables' },
+      { id: 'veg-7', name: 'Citron', category: 'vegetables' },
+      { id: 'veg-8', name: 'Orange', category: 'vegetables' },
+      { id: 'veg-9', name: 'Ananas', category: 'vegetables' },
     ],
   },
   spices: {
@@ -389,6 +403,10 @@ const ingredientData = {
       { id: 'spice-6', name: 'Basilic', category: 'spices' },
       { id: 'spice-7', name: 'Thym', category: 'spices' },
       { id: 'spice-8', name: 'Piment Espelette', category: 'spices' },
+      { id: 'spice-9', name: 'Ail', category: 'spices' },
+      { id: 'spice-10', name: 'Persil', category: 'spices' },
+      { id: 'spice-11', name: 'Poivre noir', category: 'spices' },
+      { id: 'spice-12', name: 'Ciboulette', category: 'spices' },
     ],
   },
   dairy: {
@@ -402,6 +420,10 @@ const ingredientData = {
       { id: 'dairy-5', name: 'Parmesan', category: 'dairy' },
       { id: 'dairy-6', name: 'Beurre', category: 'dairy' },
       { id: 'dairy-7', name: 'Yaourt grec', category: 'dairy' },
+      { id: 'dairy-8', name: 'Gorgonzola', category: 'dairy' },
+      { id: 'dairy-9', name: 'Roquefort', category: 'dairy' },
+      { id: 'dairy-10', name: 'Comté', category: 'dairy' },
+      { id: 'dairy-11', name: 'Cheddar', category: 'dairy' },
     ],
   },
   meat: {
@@ -414,7 +436,14 @@ const ingredientData = {
       { id: 'meat-4', name: 'Saucisses', category: 'meat' },
       { id: 'meat-5', name: 'Bacon', category: 'meat' },
       { id: 'meat-6', name: 'Jambon', category: 'meat' },
-      { id: 'meat-7', name: 'Poisson', category: 'meat' },
+      { id: 'meat-7', name: 'Thon', category: 'meat' },
+      { id: 'meat-8', name: 'Canard', category: 'meat' },
+      { id: 'meat-9', name: 'Caviar', category: 'meat' },
+      { id: 'meat-10', name: 'Foie gras', category: 'meat' },
+      { id: 'meat-11', name: 'Crevettes', category: 'meat' },
+      { id: 'meat-12', name: 'Kebab', category: 'meat' },
+      { id: 'meat-13', name: 'Saucisson', category: 'meat' },
+      { id: 'meat-13', name: 'Saumon', category: 'meat' },
     ],
   },
   sauce: {
@@ -432,6 +461,9 @@ const ingredientData = {
       { id: 'sauce-9', name: 'Caramel', category: 'sauce' },
       { id: 'sauce-10', name: 'Tabasco', category: 'sauce' },
       { id: 'sauce-11', name: 'Harissa', category: 'sauce' },
+      { id: 'sauce-12', name: 'Moutarde', category: 'sauce' },
+      { id: 'sauce-13', name: 'Pesto', category: 'sauce' },
+      { id: 'sauce-14', name: 'Hollandaise', category: 'sauce' },
     ],
   },
 }
@@ -821,11 +853,78 @@ const startCooking = () => {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  transition: all 0.3s linear;
+}
+.dock-icon:hover {
+  transform: scale(1.1);
+}
+.chef-cook-icon {
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
 }
 
 .cookbook-icon {
   width: 100%;
   height: 100%;
+  opacity: 0.6;
+}
+
+/* Disabled dock items */
+.dock-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.dock-item.disabled:hover {
+  transform: none;
+}
+
+.dock-item.disabled .dock-icon:hover {
+  transform: none;
+}
+
+/* Tooltip styles */
+.dock-item {
+  position: relative;
+}
+
+.tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 0.5rem;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+.dock-item.disabled:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
 }
 
 /* Dice spinning animation */
@@ -1309,7 +1408,7 @@ const startCooking = () => {
   padding: 0rem 0.5rem 1rem 0.5rem;
 }
 .bag-logo {
-  width: 140px;
+  width: 120px;
 }
 .bag-brand {
   font-family: 'Dekko';

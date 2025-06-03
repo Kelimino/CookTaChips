@@ -4,7 +4,9 @@
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <img class="modal-image" :src="image" alt="modal image" />
-          <h3 class="modal-title">{{ title }}</h3>
+          <h3 class="modal-title">
+            {{ title }} <span>{{ ingredients.length }}</span>
+          </h3>
         </div>
         <div class="ingredient-list">
           <div
@@ -58,54 +60,60 @@ const selectIngredient = (ingredient) => {
 const onBeforeEnter = (el) => {
   const overlay = el
   const content = el.querySelector('.modal-content')
-  
+
   gsap.set(overlay, { opacity: 0 })
   gsap.set(content, {
     opacity: 0,
-    scale: 0.8
+    scale: 0.8,
   })
 }
 
 const onEnter = (el, done) => {
   const overlay = el
   const content = el.querySelector('.modal-content')
-  
+
   const tl = gsap.timeline({ onComplete: done })
-  
+
   tl.to(overlay, {
     opacity: 1,
     duration: 0.2,
-    ease: "power2.out"
-  })
-  .to(content, {
-    opacity: 1,
-    scale: 1,
-    duration: 0.3,
-    ease: "back.out(1.7)"
-  }, "-=0.1")
+    ease: 'power2.out',
+  }).to(
+    content,
+    {
+      opacity: 1,
+      scale: 1,
+      duration: 0.3,
+      ease: 'back.out(1.7)',
+    },
+    '-=0.1',
+  )
 }
 
 const onLeave = (el, done) => {
   const overlay = el
   const content = el.querySelector('.modal-content')
-  
+
   const tl = gsap.timeline({ onComplete: done })
-  
+
   tl.to(content, {
     opacity: 0,
     scale: 0.8,
     duration: 0.2,
-    ease: "power2.in"
-  })
-  .to(overlay, {
-    opacity: 0,
-    duration: 0.15,
-    ease: "power2.in"
-  }, "-=0.1")
+    ease: 'power2.in',
+  }).to(
+    overlay,
+    {
+      opacity: 0,
+      duration: 0.15,
+      ease: 'power2.in',
+    },
+    '-=0.1',
+  )
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -149,7 +157,15 @@ const onLeave = (el, done) => {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--purple);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  span {
+    font-weight: 400;
+  }
 }
 
 .ingredient-list {
@@ -163,7 +179,7 @@ const onLeave = (el, done) => {
   cursor: pointer;
   transition: background-color 0.2s ease;
   font-size: 0.95rem;
-  color: #333;
+  color: var(--purple);
 }
 
 .ingredient-item:hover {
