@@ -518,6 +518,7 @@ const removeIngredient = (ingredientId) => {
 
 const closeFinalState = () => {
   finalState.isVisible = false
+  loadingState.isLoading = false
   selectedIngredients.value = []
 }
 
@@ -570,8 +571,6 @@ const downloadChipsImage = async () => {
 }
 
 const startCooking = () => {
-  console.log('Starting cooking process with ingredients:', selectedIngredients.value)
-
   // Show loading state
   loadingState.isLoading = true
 
@@ -594,15 +593,21 @@ const startCooking = () => {
 
   // Hide loading state and show final state after 5.2 seconds
   setTimeout(() => {
-    loadingState.isLoading = false
+    loadingState.isLoading = true
     finalState.isVisible = true
-    
+
     // Wait for next tick to ensure the DOM is updated for final overlay
     nextTick(() => {
-      if (finalOverlay.value) {
+      console.log(finalOverlay)
+      if (finalOverlay) {
         // Set initial state - small circle
         gsap.set(finalOverlay.value, {
           clipPath: 'circle(0% at 50% 50%)',
+        })
+        gsap.set(finalOverlay.value.lastChild, {
+          opacity: 0,
+          scale: 0.8,
+          y: 10,
         })
 
         // Animate to large circle that covers everything
@@ -611,9 +616,15 @@ const startCooking = () => {
           duration: 1.2,
           ease: 'power2.out',
         })
+        gsap.to(finalOverlay.value.lastChild, {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          delay: 0.4,
+        })
       }
     })
-  }, 5200)
+  }, 4200)
 }
 </script>
 
