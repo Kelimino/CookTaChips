@@ -159,7 +159,7 @@
     </div>
 
     <!-- Final Chips Result -->
-    <div v-if="finalState.isVisible" class="final-overlay">
+    <div v-if="finalState.isVisible" class="final-overlay" ref="finalOverlay">
       <!-- Fireworks Background Animation -->
       <div v-if="fireworksAnimation" class="fireworks-background">
         <Vue3Lottie
@@ -286,6 +286,9 @@ const selectedIngredients = ref([])
 
 // Loading overlay ref for GSAP animation
 const loadingOverlay = ref(null)
+
+// Final overlay ref for GSAP animation
+const finalOverlay = ref(null)
 
 // Dice animation ref
 const diceAnimationRef = ref(null)
@@ -593,6 +596,23 @@ const startCooking = () => {
   setTimeout(() => {
     loadingState.isLoading = false
     finalState.isVisible = true
+    
+    // Wait for next tick to ensure the DOM is updated for final overlay
+    nextTick(() => {
+      if (finalOverlay.value) {
+        // Set initial state - small circle
+        gsap.set(finalOverlay.value, {
+          clipPath: 'circle(0% at 50% 50%)',
+        })
+
+        // Animate to large circle that covers everything
+        gsap.to(finalOverlay.value, {
+          clipPath: 'circle(100% at 50% 50%)',
+          duration: 1.2,
+          ease: 'power2.out',
+        })
+      }
+    })
   }, 5200)
 }
 </script>
