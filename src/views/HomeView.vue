@@ -1734,7 +1734,7 @@ const startCooking = () => {
   gap: 1rem;
   margin-top: 1rem;
   position: absolute;
-  bottom: 2rem;
+  bottom: 3rem;
   z-index: 10;
 }
 
