@@ -442,7 +442,7 @@ const ingredientData = {
   },
   vegetables: {
     title: 'Légumes',
-    image: '/images/ingredients/vegetables-icon.png',
+    image: '/images/vegetables-icon.png',
     items: [
       {
         id: 'veg-1',
@@ -502,7 +502,7 @@ const ingredientData = {
   },
   spices: {
     title: 'Épices',
-    image: '/images/ingredients/spices-icon.png',
+    image: '/images/spices-icon.png',
     items: [
       { id: 'spice-1', name: 'Cumin', category: 'spices', icon: '/images/ingredients/cumin.png' },
       {
@@ -560,7 +560,7 @@ const ingredientData = {
   },
   dairy: {
     title: 'Produits laitiers',
-    image: '/images/ingredients/dairy-icon.png',
+    image: '/images/dairy-icon.png',
     items: [
       {
         id: 'dairy-1',
@@ -622,7 +622,7 @@ const ingredientData = {
   },
   meat: {
     title: 'Viandes',
-    image: '/images/ingredients/meat-icon.png',
+    image: '/images/meat-icon.png',
     items: [
       { id: 'meat-1', name: 'Poulet', category: 'meat', icon: '/images/ingredients/chicken.png' },
       {
@@ -667,7 +667,7 @@ const ingredientData = {
   },
   sauce: {
     title: 'Sauces',
-    image: '/images/ingredients/sauce-icon.png',
+    image: '/images/sauce-icon.png',
     items: [
       {
         id: 'sauce-1',
@@ -1613,6 +1613,7 @@ const startCooking = () => {
     font-family: cursive;
     white-space: normal;
     font-size: 1.8rem;
+    text-shadow: 1px 1px 6px rgba($color: #ceba0e, $alpha: 0.2);
   }
 
   .ingredient-vegetables {
@@ -1675,7 +1676,7 @@ const startCooking = () => {
 /* Ingredient Icons */
 .ingredient-icons {
   position: absolute;
-  bottom: 10%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
