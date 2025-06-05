@@ -1641,6 +1641,7 @@ const startCooking = () => {
   align-items: center;
   justify-content: center;
   height: 80%;
+  background: radial-gradient(circle, rgba(247, 243, 223, 0.5) 20%, rgba(251, 219, 147, 0) 40%);
 }
 
 .bag-text-content {
@@ -1770,7 +1771,6 @@ const startCooking = () => {
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.2px;
-  background: radial-gradient(circle, rgba(247, 243, 223, 0.8) 20%, rgba(251, 219, 147, 0) 40%);
 }
 
 .ingredient-icon {
