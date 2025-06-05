@@ -68,13 +68,12 @@
           </div>
 
           <!-- 3D Cookbook -->
-          <div class="dock-item cookbook disabled" title="Coming Soon">
+          <div class="dock-item cookbook" @click="openModal('cookbook')">
             <img
               src="/images/cookbook-3d.png"
               alt="Livre de cuisine"
               class="dock-icon cookbook-icon"
             />
-            <div class="tooltip">Bientôt</div>
           </div>
         </div>
       </div>
@@ -117,13 +116,12 @@
 
     <!-- Loading Screen -->
     <div v-if="loadingState.isLoading" class="loading-overlay" ref="loadingOverlay">
-      <div class="loading-content">
-        <!-- Central Chips Image -->
-        <div class="central-chips">
-          <img src="/images/chips-center.png" alt="Chips" class="chips-image" />
+      <!-- Central Chips Image -->
+      <div class="central-chips">
+        <img src="/images/chips-center.png" alt="Chips" class="chips-image" />
 
-          <!-- Rotating Icons Around Chips -->
-          <div class="rotating-icons">
+        <!-- Rotating Icons Around Chips -->
+        <!-- <div class="rotating-icons">
             <div class="rotating-icon icon-1">
               <img src="/images/chef-hat-3d.png" alt="Chef Hat" />
             </div>
@@ -136,11 +134,11 @@
             <div class="rotating-icon icon-4">
               <img src="/images/pepper-3d.png" alt="Pepper" />
             </div>
-          </div>
-        </div>
-
+          </div> -->
+      </div>
+      <div class="loading-content">
         <!-- Loading Text -->
-        <p class="loading-text">Un petit temps de cuisson puis tout est bon</p>
+        <p class="loading-text">Un petit temps de cuisson puis tout est bon !</p>
 
         <!-- Loading Dots -->
         <div class="loading-dots">
@@ -187,7 +185,7 @@
         <!-- Chips Container for Sharing/Download -->
         <div class="chips-container" id="chips-container">
           <!-- Top Text -->
-          <div class="top-text">J'ai Cook ma Chips !</div>
+          <div class="top-text">Mes Chips !</div>
           <!-- Decorative Potato Images -->
           <div class="decoration-chips left-top">
             <img src="/images/potato.svg" alt="Potato" width="60" height="40" />
@@ -249,7 +247,10 @@
                   :key="`icon-${ingredient.id}`"
                   :src="ingredient.icon"
                   :alt="ingredient.name"
-                  class="ingredient-icon"
+                  :class="[
+                    'ingredient-icon',
+                    { 'cookbook-ingredient': ingredient.category === 'cookbook' },
+                  ]"
                   :style="getIngredientIconStyle(index)"
                 />
               </div>
@@ -390,6 +391,7 @@ const selectedBagImage = computed(() => {
     meat: ['bag-meat-1.png', 'bag-meat-2.png', 'bag-meat-3.png'],
     sauce: ['bag-yellow-1.png', 'bag-yellow-2.png', 'bag-yellow-3.png'],
     chef: ['bag-white-1.png', 'bag-white-2.png', 'bag-white-3.png'], // fallback for chef category
+    cookbook: ['bag-cook.png'], // fallback for chef category
   }
 
   // Randomly select one of the 3 variants
@@ -402,6 +404,66 @@ const selectedBagImage = computed(() => {
 
 // Ingredient data for each category
 const ingredientData = {
+  cookbook: {
+    title: 'Plats traditionnels',
+    image: '/images/cookbook-3d.png',
+    items: [
+      {
+        id: 'cookbook-1',
+        name: 'Bœuf bourguignon',
+        category: 'cookbook',
+        icon: '/images/ingredients/boeuf-bourguignon.png',
+      },
+      {
+        id: 'cookbook-2',
+        name: 'Blanquette de veau',
+        category: 'cookbook',
+        icon: '/images/ingredients/blanquette-de-veau.png',
+      },
+      {
+        id: 'cookbook-3',
+        name: 'Cassoulet',
+        category: 'cookbook',
+        icon: '/images/ingredients/cassoulet.png',
+      },
+      {
+        id: 'cookbook-4',
+        name: 'Bouillabaisse',
+        category: 'cookbook',
+        icon: '/images/ingredients/bouillabaisse.png',
+      },
+      {
+        id: 'cookbook-5',
+        name: "Canard à l'orange",
+        category: 'cookbook',
+        icon: '/images/ingredients/canard-a-l-orange.png',
+      },
+      {
+        id: 'cookbook-6',
+        name: 'Fondue savoyarde',
+        category: 'cookbook',
+        icon: '/images/ingredients/fondue-savoyarde.png',
+      },
+      {
+        id: 'cookbook-7',
+        name: 'Quiche lorraine',
+        category: 'cookbook',
+        icon: '/images/ingredients/quiche-lorraine.png',
+      },
+      {
+        id: 'cookbook-8',
+        name: 'Couscous',
+        category: 'cookbook',
+        icon: '/images/ingredients/couscous.png',
+      },
+      {
+        id: 'cookbook-9',
+        name: 'Tajine',
+        category: 'cookbook',
+        icon: '/images/ingredients/tajine.png',
+      },
+    ],
+  },
   chef: {
     title: 'Chef Signature',
     image: '/images/chef-cook.png',
@@ -784,9 +846,9 @@ const randomCombination = () => {
   // Clear current selection
   selectedIngredients.value = []
 
-  // Get random ingredients from each category (excluding chef)
+  // Get random ingredients from each category (excluding chef and cookbook)
   Object.keys(ingredientData).forEach((category) => {
-    if (category !== 'chef') {
+    if (category !== 'chef' && category !== 'cookbook') {
       const items = ingredientData[category].items
       if (items.length > 0) {
         const randomIndex = Math.floor(Math.random() * items.length)
@@ -819,7 +881,16 @@ const selectIngredient = (ingredient) => {
   const isAlreadySelected = selectedIngredients.value.some((item) => item.id === ingredient.id)
 
   if (!isAlreadySelected) {
-    selectedIngredients.value.push(ingredient)
+    // For cookbook category, only allow one selection (replace previous cookbook selection)
+    if (ingredient.category === 'cookbook') {
+      selectedIngredients.value = selectedIngredients.value.filter(
+        (item) => item.category !== 'cookbook',
+      )
+      selectedIngredients.value.push(ingredient)
+    } else {
+      // For other categories, allow multiple selections
+      selectedIngredients.value.push(ingredient)
+    }
   }
 }
 
@@ -951,7 +1022,7 @@ const startCooking = () => {
         })
       }
     })
-  }, 4200)
+  }, 4000)
 }
 </script>
 
@@ -1260,29 +1331,30 @@ const startCooking = () => {
   align-items: center;
   justify-content: center;
   text-align: center;
+  z-index: 1;
 }
 
 /* Central Chips Container */
 .central-chips {
-  position: relative;
   margin-bottom: 3rem;
 }
 
 .chips-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  z-index: 1;
-  position: relative;
+  width: 40%;
+  object-fit: fill;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   animation: rotateChips 250s forwards infinite;
 }
 
 @keyframes rotateChips {
   0% {
-    transform: rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
   }
   100% {
-    transform: rotate(3600deg);
+    transform: translate(-50%, -50%) rotate(3600deg);
   }
 }
 
@@ -1346,8 +1418,8 @@ const startCooking = () => {
 }
 
 .dot {
-  width: 30px;
-  height: 30px;
+  width: 48px;
+  height: 48px;
   opacity: 0.3;
   animation: loadingDots 1.5s ease-in-out infinite;
 }
@@ -1577,7 +1649,7 @@ const startCooking = () => {
   align-items: center;
   justify-content: flex-start;
   text-align: center;
-  padding: 0rem 0.5rem 1rem 0.5rem;
+  padding: 0rem 0.5rem 1rem 1.75rem;
   position: relative;
   z-index: 1;
   height: 100%;
@@ -1596,53 +1668,60 @@ const startCooking = () => {
 }
 
 .bag-flavor {
-  max-width: 250px;
+  max-width: 210px;
   word-wrap: break-word;
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
 
   .ingredient-tag {
-    white-space: nowrap;
     font-family: 'Dela Gothic One', 'Arial Black', sans-serif;
-    font-size: 2.5rem;
+    font-size: 2.3rem;
     font-weight: 900;
+    line-height: 1.2;
     text-align: center;
     color: white;
     text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
     mix-blend-mode: difference;
   }
   .ingredient-chef {
-    font-family: cursive;
+    font-family: 'Quintessential', serif;
+    white-space: normal;
+    font-size: 1.8rem;
+    text-shadow: 1px 1px 6px rgba($color: #ceba0e, $alpha: 0.2);
+  }
+  .ingredient-cookbook {
+    font-family: 'Quintessential', serif;
     white-space: normal;
     font-size: 1.8rem;
     text-shadow: 1px 1px 6px rgba($color: #ceba0e, $alpha: 0.2);
   }
 
   .ingredient-vegetables {
-    font-family: cursive;
+    font-family: 'Oregano', cursive;
     // color: #b0db9c;
   }
 
   .ingredient-spices {
-    font-family: fantasy;
+    font-family: 'Indie Flower', cursive;
     // color: #ff8282;
   }
 
   .ingredient-dairy {
-    font-family: fantasy;
+    font-family: 'Oregano', cursive;
     // color: #ffc785;
   }
 
   .ingredient-meat {
-    font-family: fantasy;
+    font-family: 'Oregano', cursive;
     // color: #e78f81;
   }
 
   .ingredient-sauce {
-    font-family: cursive;
+    font-family: 'Indie Flower', cursive;
     // color: #ff6500;
   }
 }
@@ -1686,17 +1765,22 @@ const startCooking = () => {
   transform: translate(-50%, -50%);
   pointer-events: none;
   display: flex;
-  width: 100%;
+  width: 230px;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.2px;
+  background: radial-gradient(circle, rgba(247, 243, 223, 0.8) 20%, rgba(251, 219, 147, 0) 40%);
 }
 
 .ingredient-icon {
-  width: 50px;
+  width: 60px;
   object-fit: contain;
   opacity: 0.8;
+}
+
+.ingredient-icon.cookbook-ingredient {
+  width: 140px;
 }
 /* Top Text */
 .top-text {
