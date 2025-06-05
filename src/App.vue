@@ -177,8 +177,6 @@ const goBackToStart = () => {
 <style scoped>
 .app-container {
   width: 100%;
-  height: 100vh;
-  overflow: hidden;
   position: relative;
 }
 
@@ -193,7 +191,6 @@ const goBackToStart = () => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
   transition: opacity 0.3s ease;
 }
 

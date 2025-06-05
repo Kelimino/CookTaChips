@@ -279,25 +279,25 @@
           <!-- Bottom Text -->
           <div class="bottom-text">Croustillantes et gourmandes</div>
         </div>
+      </div>
 
-        <!-- Action Buttons -->
-        <div class="final-actions">
-          <button class="action-btn download-btn" @click="downloadChipsImage">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7,10 12,15 17,10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            Télécharger votre paquet
-          </button>
-        </div>
+      <!-- Action Buttons -->
+      <div class="final-actions">
+        <button class="action-btn download-btn" @click="downloadChipsImage">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7,10 12,15 17,10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Télécharger votre paquet
+        </button>
       </div>
     </div>
   </div>
@@ -778,13 +778,15 @@ const randomCombination = () => {
   // Clear current selection
   selectedIngredients.value = []
 
-  // Get random ingredients from each category
+  // Get random ingredients from each category (excluding chef)
   Object.keys(ingredientData).forEach((category) => {
-    const items = ingredientData[category].items
-    if (items.length > 0) {
-      const randomIndex = Math.floor(Math.random() * items.length)
-      const randomIngredient = items[randomIndex]
-      selectedIngredients.value.push(randomIngredient)
+    if (category !== 'chef') {
+      const items = ingredientData[category].items
+      if (items.length > 0) {
+        const randomIndex = Math.floor(Math.random() * items.length)
+        const randomIngredient = items[randomIndex]
+        selectedIngredients.value.push(randomIngredient)
+      }
     }
   })
 }
@@ -949,11 +951,11 @@ const startCooking = () => {
 
 <style scoped lang="scss">
 .home-container {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: #fbdb93;
   position: relative;
+  min-height: 100svh;
 }
 .main-content {
   flex: 1;
@@ -1237,7 +1239,7 @@ const startCooking = () => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100svh;
   background: #f7f3df;
   background: radial-gradient(circle, rgba(247, 243, 223, 1) 0%, rgba(251, 219, 147, 1) 100%);
   display: flex;
@@ -1381,8 +1383,8 @@ const startCooking = () => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background: var(--yellow);
+  height: 100svh;
+  background: radial-gradient(circle, rgba(247, 243, 223, 1) 0%, rgba(251, 219, 147, 1) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1457,14 +1459,11 @@ const startCooking = () => {
   position: relative;
   width: 500px;
   height: 600px;
-  background: white;
-  border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 /* Decorative Chips Positioning */
@@ -1734,6 +1733,9 @@ const startCooking = () => {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
+  position: absolute;
+  bottom: 2rem;
+  z-index: 10;
 }
 
 .action-btn {
