@@ -15,7 +15,13 @@
             class="ingredient-item"
             @click="selectIngredient(ingredient)"
           >
-            {{ ingredient.name }}
+            <div v-if="ingredient.category === 'chef'" class="chef-item">
+              <img :src="ingredient.icon" :alt="ingredient.name" class="chef-icon" />
+              <div class="chef-name">{{ ingredient.name }}</div>
+            </div>
+            <div v-else>
+              {{ ingredient.name }}
+            </div>
           </div>
         </div>
       </div>
@@ -188,5 +194,25 @@ const onLeave = (el, done) => {
 
 .ingredient-item:last-child {
   border-bottom: none;
+}
+
+.chef-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.chef-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.chef-name {
+  font-size: 0.95rem;
+  color: var(--purple);
+  flex: 1;
 }
 </style>

@@ -38,13 +38,12 @@
       <div class="bottom-app-bar">
         <div class="dock-container">
           <!-- 3D Cookbook -->
-          <div class="dock-item chef-cook disabled" title="Coming Soon">
+          <div class="dock-item chef-cook" @click="openModal('chef')">
             <img
               src="/images/chef-cook.png"
               alt="Livre de cuisine"
               class="dock-icon chef-cook-icon"
             />
-            <div class="tooltip">Bientôt</div>
           </div>
 
           <!-- 5 Modal Icons -->
@@ -227,20 +226,51 @@
           <div class="potato-bag-container">
             <img :src="selectedBagImage" alt="Potato Bag" class="potato-bag" />
 
+            <svg style="display: none">
+              <filter id="distort">
+                <feTurbulence
+                  type="turbulence"
+                  baseFrequency="0.005"
+                  numOctaves="1"
+                  result="turbulence"
+                />
+                <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="20" />
+              </filter>
+            </svg>
+
             <!-- Simplified Text Overlay -->
             <div class="bag-text-overlay">
+              <!-- Ingredient Icons -->
+              <div class="ingredient-icons">
+                <img
+                  v-for="(ingredient, index) in selectedIngredients.filter(
+                    (ing) => ing.category !== 'chef',
+                  )"
+                  :key="`icon-${ingredient.id}`"
+                  :src="ingredient.icon"
+                  :alt="ingredient.name"
+                  class="ingredient-icon"
+                  :style="getIngredientIconStyle(index)"
+                />
+              </div>
               <div class="bag-text-content">
                 <img src="/images/logo.png" alt="bag logo" class="bag-logo" />
+
                 <div class="bag-brand">Saveur</div>
                 <div class="bag-flavor">
                   <span
                     v-for="(ingredient, index) in selectedIngredients"
                     :key="ingredient.id"
                     :class="`ingredient-${ingredient.category}`"
-                    class="ingredient-tag"
+                    class="ingredient-tag bag-distortion"
                   >
-                    {{ ingredient.name }}
+                    {{ ingredient.category === 'chef' ? ingredient.signature : ingredient.name }}
                   </span>
+                </div>
+                <!-- Chef Info -->
+                <div v-if="selectedChef" class="chef-info-overlay">
+                  <img :src="selectedChef.icon" :alt="selectedChef.name" class="chef-avatar" />
+                  <span class="chef-name-overlay">{{ selectedChef.name }}</span>
                 </div>
               </div>
             </div>
@@ -265,7 +295,7 @@
               <polyline points="7,10 12,15 17,10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
-            Télécharger
+            Télécharger votre paquet
           </button>
         </div>
       </div>
@@ -316,10 +346,23 @@ const finalState = reactive({
   isVisible: false,
 })
 
+// Computed property for selected chef
+const selectedChef = computed(() => {
+  return selectedIngredients.value.find((ingredient) => ingredient.category === 'chef')
+})
+
 // Computed property for dynamic bag selection
 const selectedBagImage = computed(() => {
   if (selectedIngredients.value.length === 0) {
     return '/images/bag-white.png' // Default bag
+  }
+
+  // Check if there's a chef selected (chef bags take priority)
+  const chefIngredient = selectedIngredients.value.find(
+    (ingredient) => ingredient.category === 'chef',
+  )
+  if (chefIngredient && chefIngredient.bagImage) {
+    return chefIngredient.bagImage
   }
 
   // Count ingredients by category
@@ -346,6 +389,7 @@ const selectedBagImage = computed(() => {
     dairy: ['bag-white-1.png', 'bag-white-2.png', 'bag-white-3.png'],
     meat: ['bag-meat-1.png', 'bag-meat-2.png', 'bag-meat-3.png'],
     sauce: ['bag-yellow-1.png', 'bag-yellow-2.png', 'bag-yellow-3.png'],
+    chef: ['bag-white-1.png', 'bag-white-2.png', 'bag-white-3.png'], // fallback for chef category
   }
 
   // Randomly select one of the 3 variants
@@ -358,94 +402,347 @@ const selectedBagImage = computed(() => {
 
 // Ingredient data for each category
 const ingredientData = {
+  chef: {
+    title: 'Chef Signature',
+    image: '/images/chef-cook.png',
+    items: [
+      {
+        id: 'chef-1',
+        name: 'Philippe Etchebest',
+        category: 'chef',
+        icon: '/images/chef/etchebest.png',
+        signature: 'Raviole de champignons, foie gras poêlé, bouillon crémé',
+        bagImage: '/images/chef/bag-etchebest.png',
+      },
+      {
+        id: 'chef-2',
+        name: 'Cyril Lignac',
+        category: 'chef',
+        icon: '/images/chef/lignac.png',
+        signature: "Galette d'avocat et crabe au curry Madras",
+        bagImage: '/images/chef/bag-lignac.png',
+      },
+      {
+        id: 'chef-3',
+        name: 'Paul Bocuse',
+        category: 'chef',
+        icon: '/images/chef/bocuse.png',
+        signature: 'Soupe aux truffes VGE',
+        bagImage: '/images/chef/bag-bocuse.png',
+      },
+      {
+        id: 'chef-4',
+        name: 'Joël Robuchon',
+        category: 'chef',
+        icon: '/images/chef/robuchon.png',
+        signature: 'Purée de pommes de terre',
+        bagImage: '/images/chef/bag-robuchon.png',
+      },
+    ],
+  },
   vegetables: {
     title: 'Légumes',
-    image: '/images/vegetables-icon.png',
+    image: '/images/ingredients/vegetables-icon.png',
     items: [
-      { id: 'veg-1', name: 'Tomates', category: 'vegetables' },
-      { id: 'veg-2', name: 'Oignons', category: 'vegetables' },
-      { id: 'veg-3', name: 'Poivrons', category: 'vegetables' },
-      { id: 'veg-4', name: 'Courgettes', category: 'vegetables' },
-      { id: 'veg-5', name: 'Aubergines', category: 'vegetables' },
-      { id: 'veg-6', name: 'Champignons', category: 'vegetables' },
-      { id: 'veg-7', name: 'Citron', category: 'vegetables' },
-      { id: 'veg-8', name: 'Orange', category: 'vegetables' },
-      { id: 'veg-9', name: 'Ananas', category: 'vegetables' },
+      {
+        id: 'veg-1',
+        name: 'Tomates',
+        category: 'vegetables',
+        icon: '/images/ingredients/tomato.png',
+      },
+      {
+        id: 'veg-2',
+        name: 'Oignons',
+        category: 'vegetables',
+        icon: '/images/ingredients/onion.png',
+      },
+      {
+        id: 'veg-3',
+        name: 'Poivrons',
+        category: 'vegetables',
+        icon: '/images/ingredients/bell-pepper.png',
+      },
+      {
+        id: 'veg-4',
+        name: 'Courgettes',
+        category: 'vegetables',
+        icon: '/images/ingredients/zucchini.png',
+      },
+      {
+        id: 'veg-5',
+        name: 'Aubergines',
+        category: 'vegetables',
+        icon: '/images/ingredients/eggplant.png',
+      },
+      {
+        id: 'veg-6',
+        name: 'Champignons',
+        category: 'vegetables',
+        icon: '/images/ingredients/mushroom.png',
+      },
+      {
+        id: 'veg-7',
+        name: 'Citron',
+        category: 'vegetables',
+        icon: '/images/ingredients/lemon.png',
+      },
+      {
+        id: 'veg-8',
+        name: 'Orange',
+        category: 'vegetables',
+        icon: '/images/ingredients/orange.png',
+      },
+      {
+        id: 'veg-9',
+        name: 'Ananas',
+        category: 'vegetables',
+        icon: '/images/ingredients/ananas.png',
+      },
     ],
   },
   spices: {
     title: 'Épices',
-    image: '/images/spices-icon.png',
+    image: '/images/ingredients/spices-icon.png',
     items: [
-      { id: 'spice-1', name: 'Cumin', category: 'spices' },
-      { id: 'spice-2', name: 'Paprika', category: 'spices' },
-      { id: 'spice-3', name: 'Curry', category: 'spices' },
-      { id: 'spice-4', name: 'Coriande', category: 'spices' },
-      { id: 'spice-5', name: 'Origan', category: 'spices' },
-      { id: 'spice-6', name: 'Basilic', category: 'spices' },
-      { id: 'spice-7', name: 'Thym', category: 'spices' },
-      { id: 'spice-8', name: 'Piment Espelette', category: 'spices' },
-      { id: 'spice-9', name: 'Ail', category: 'spices' },
-      { id: 'spice-10', name: 'Persil', category: 'spices' },
-      { id: 'spice-11', name: 'Poivre noir', category: 'spices' },
-      { id: 'spice-12', name: 'Ciboulette', category: 'spices' },
+      { id: 'spice-1', name: 'Cumin', category: 'spices', icon: '/images/ingredients/cumin.png' },
+      {
+        id: 'spice-2',
+        name: 'Paprika',
+        category: 'spices',
+        icon: '/images/ingredients/paprika.png',
+      },
+      { id: 'spice-3', name: 'Curry', category: 'spices', icon: '/images/ingredients/curry.png' },
+      {
+        id: 'spice-4',
+        name: 'Coriande',
+        category: 'spices',
+        icon: '/images/ingredients/coriander.png',
+      },
+      {
+        id: 'spice-5',
+        name: 'Origan',
+        category: 'spices',
+        icon: '/images/ingredients/oregano.png',
+      },
+      {
+        id: 'spice-6',
+        name: 'Basilic',
+        category: 'spices',
+        icon: '/images/ingredients/basilic.png',
+      },
+      { id: 'spice-7', name: 'Thym', category: 'spices', icon: '/images/ingredients/thyme.png' },
+      {
+        id: 'spice-8',
+        name: 'Piment Espelette',
+        category: 'spices',
+        icon: '/images/ingredients/espelette-pepper.png',
+      },
+      { id: 'spice-9', name: 'Ail', category: 'spices', icon: '/images/ingredients/garlic.png' },
+      {
+        id: 'spice-10',
+        name: 'Persil',
+        category: 'spices',
+        icon: '/images/ingredients/parsley.png',
+      },
+      {
+        id: 'spice-11',
+        name: 'Poivre noir',
+        category: 'spices',
+        icon: '/images/ingredients/black-pepper.png',
+      },
+      {
+        id: 'spice-12',
+        name: 'Ciboulette',
+        category: 'spices',
+        icon: '/images/ingredients/chives.png',
+      },
     ],
   },
   dairy: {
     title: 'Produits laitiers',
-    image: '/images/dairy-icon.png',
+    image: '/images/ingredients/dairy-icon.png',
     items: [
-      { id: 'dairy-1', name: 'Fromage râpé', category: 'dairy' },
-      { id: 'dairy-2', name: 'Mozzarella', category: 'dairy' },
-      { id: 'dairy-3', name: 'Chèvre', category: 'dairy' },
-      { id: 'dairy-4', name: 'Crème fraîche', category: 'dairy' },
-      { id: 'dairy-5', name: 'Parmesan', category: 'dairy' },
-      { id: 'dairy-6', name: 'Beurre', category: 'dairy' },
-      { id: 'dairy-7', name: 'Yaourt grec', category: 'dairy' },
-      { id: 'dairy-8', name: 'Gorgonzola', category: 'dairy' },
-      { id: 'dairy-9', name: 'Roquefort', category: 'dairy' },
-      { id: 'dairy-10', name: 'Comté', category: 'dairy' },
-      { id: 'dairy-11', name: 'Cheddar', category: 'dairy' },
+      {
+        id: 'dairy-1',
+        name: 'Fromage râpé',
+        category: 'dairy',
+        icon: '/images/ingredients/grated-cheese.png',
+      },
+      {
+        id: 'dairy-2',
+        name: 'Mozzarella',
+        category: 'dairy',
+        icon: '/images/ingredients/mozzarella.png',
+      },
+      {
+        id: 'dairy-3',
+        name: 'Chèvre',
+        category: 'dairy',
+        icon: '/images/ingredients/goat-cheese.png',
+      },
+      {
+        id: 'dairy-4',
+        name: 'Crème fraîche',
+        category: 'dairy',
+        icon: '/images/ingredients/cream.png',
+      },
+      {
+        id: 'dairy-5',
+        name: 'Parmesan',
+        category: 'dairy',
+        icon: '/images/ingredients/parmesan.png',
+      },
+      { id: 'dairy-6', name: 'Beurre', category: 'dairy', icon: '/images/ingredients/butter.png' },
+      {
+        id: 'dairy-7',
+        name: 'Yaourt grec',
+        category: 'dairy',
+        icon: '/images/ingredients/greek-yogurt.png',
+      },
+      {
+        id: 'dairy-8',
+        name: 'Gorgonzola',
+        category: 'dairy',
+        icon: '/images/ingredients/gorgonzola.png',
+      },
+      {
+        id: 'dairy-9',
+        name: 'Roquefort',
+        category: 'dairy',
+        icon: '/images/ingredients/roquefort.png',
+      },
+      { id: 'dairy-10', name: 'Comté', category: 'dairy', icon: '/images/ingredients/comte.png' },
+      {
+        id: 'dairy-11',
+        name: 'Cheddar',
+        category: 'dairy',
+        icon: '/images/ingredients/cheddar.png',
+      },
     ],
   },
   meat: {
     title: 'Viandes',
-    image: '/images/meat-icon.png',
+    image: '/images/ingredients/meat-icon.png',
     items: [
-      { id: 'meat-1', name: 'Poulet', category: 'meat' },
-      { id: 'meat-2', name: 'Bœuf haché', category: 'meat' },
-      { id: 'meat-3', name: 'Porc', category: 'meat' },
-      { id: 'meat-4', name: 'Saucisses', category: 'meat' },
-      { id: 'meat-5', name: 'Bacon', category: 'meat' },
-      { id: 'meat-6', name: 'Jambon', category: 'meat' },
-      { id: 'meat-7', name: 'Thon', category: 'meat' },
-      { id: 'meat-8', name: 'Canard', category: 'meat' },
-      { id: 'meat-9', name: 'Caviar', category: 'meat' },
-      { id: 'meat-10', name: 'Foie gras', category: 'meat' },
-      { id: 'meat-11', name: 'Crevettes', category: 'meat' },
-      { id: 'meat-12', name: 'Kebab', category: 'meat' },
-      { id: 'meat-13', name: 'Saucisson', category: 'meat' },
-      { id: 'meat-14', name: 'Saumon', category: 'meat' },
+      { id: 'meat-1', name: 'Poulet', category: 'meat', icon: '/images/ingredients/chicken.png' },
+      {
+        id: 'meat-2',
+        name: 'Bœuf haché',
+        category: 'meat',
+        icon: '/images/ingredients/ground-beef.png',
+      },
+      { id: 'meat-3', name: 'Porc', category: 'meat', icon: '/images/ingredients/pork.png' },
+      {
+        id: 'meat-4',
+        name: 'Saucisses',
+        category: 'meat',
+        icon: '/images/ingredients/sausages.png',
+      },
+      { id: 'meat-5', name: 'Bacon', category: 'meat', icon: '/images/ingredients/bacon.png' },
+      { id: 'meat-6', name: 'Jambon', category: 'meat', icon: '/images/ingredients/ham.png' },
+      { id: 'meat-7', name: 'Thon', category: 'meat', icon: '/images/ingredients/tuna.png' },
+      { id: 'meat-8', name: 'Canard', category: 'meat', icon: '/images/ingredients/duck.png' },
+      { id: 'meat-9', name: 'Caviar', category: 'meat', icon: '/images/ingredients/caviar.png' },
+      {
+        id: 'meat-10',
+        name: 'Foie gras',
+        category: 'meat',
+        icon: '/images/ingredients/foie-gras.png',
+      },
+      {
+        id: 'meat-11',
+        name: 'Crevettes',
+        category: 'meat',
+        icon: '/images/ingredients/shrimp.png',
+      },
+      { id: 'meat-12', name: 'Kebab', category: 'meat', icon: '/images/ingredients/kebab.png' },
+      {
+        id: 'meat-13',
+        name: 'Saucisson',
+        category: 'meat',
+        icon: '/images/ingredients/saucisson.png',
+      },
+      { id: 'meat-14', name: 'Saumon', category: 'meat', icon: '/images/ingredients/salmon.png' },
     ],
   },
   sauce: {
     title: 'Sauces',
-    image: '/images/sauce-icon.png',
+    image: '/images/ingredients/sauce-icon.png',
     items: [
-      { id: 'sauce-1', name: 'Sauce Algérienne', category: 'sauce' },
-      { id: 'sauce-2', name: 'Sauce BBQ', category: 'sauce' },
-      { id: 'sauce-3', name: 'Sauce soja', category: 'sauce' },
-      { id: 'sauce-4', name: "Huile d'olive", category: 'sauce' },
-      { id: 'sauce-5', name: 'Vinaigre balsamique', category: 'sauce' },
-      { id: 'sauce-6', name: 'Mayonnaise', category: 'sauce' },
-      { id: 'sauce-7', name: 'Ketchup', category: 'sauce' },
-      { id: 'sauce-8', name: 'Miel', category: 'sauce' },
-      { id: 'sauce-9', name: 'Caramel', category: 'sauce' },
-      { id: 'sauce-10', name: 'Tabasco', category: 'sauce' },
-      { id: 'sauce-11', name: 'Harissa', category: 'sauce' },
-      { id: 'sauce-12', name: 'Moutarde', category: 'sauce' },
-      { id: 'sauce-13', name: 'Pesto', category: 'sauce' },
-      { id: 'sauce-14', name: 'Hollandaise', category: 'sauce' },
+      {
+        id: 'sauce-1',
+        name: 'Sauce Algérienne',
+        category: 'sauce',
+        icon: '/images/ingredients/algerian-sauce.png',
+      },
+      {
+        id: 'sauce-2',
+        name: 'Sauce BBQ',
+        category: 'sauce',
+        icon: '/images/ingredients/bbq-sauce.png',
+      },
+      {
+        id: 'sauce-3',
+        name: 'Sauce soja',
+        category: 'sauce',
+        icon: '/images/ingredients/soy-sauce.png',
+      },
+      {
+        id: 'sauce-4',
+        name: "Huile d'olive",
+        category: 'sauce',
+        icon: '/images/ingredients/olive-oil.png',
+      },
+      {
+        id: 'sauce-5',
+        name: 'Vinaigre balsamique',
+        category: 'sauce',
+        icon: '/images/ingredients/balsamic-vinegar.png',
+      },
+      {
+        id: 'sauce-6',
+        name: 'Mayonnaise',
+        category: 'sauce',
+        icon: '/images/ingredients/mayonnaise.png',
+      },
+      {
+        id: 'sauce-7',
+        name: 'Ketchup',
+        category: 'sauce',
+        icon: '/images/ingredients/ketchup.png',
+      },
+      { id: 'sauce-8', name: 'Miel', category: 'sauce', icon: '/images/ingredients/honey.png' },
+      {
+        id: 'sauce-9',
+        name: 'Caramel',
+        category: 'sauce',
+        icon: '/images/ingredients/caramel.png',
+      },
+      {
+        id: 'sauce-10',
+        name: 'Tabasco',
+        category: 'sauce',
+        icon: '/images/ingredients/tabasco.png',
+      },
+      {
+        id: 'sauce-11',
+        name: 'Harissa',
+        category: 'sauce',
+        icon: '/images/ingredients/harissa.png',
+      },
+      {
+        id: 'sauce-12',
+        name: 'Moutarde',
+        category: 'sauce',
+        icon: '/images/ingredients/mustard.png',
+      },
+      { id: 'sauce-13', name: 'Pesto', category: 'sauce', icon: '/images/ingredients/pesto.png' },
+      {
+        id: 'sauce-14',
+        name: 'Hollandaise',
+        category: 'sauce',
+        icon: '/images/ingredients/hollandaise.png',
+      },
     ],
   },
 }
@@ -526,6 +823,22 @@ const closeFinalState = () => {
   finalState.isVisible = false
   loadingState.isLoading = false
   selectedIngredients.value = []
+}
+
+const getIngredientIconStyle = (index) => {
+  // Define positions around the bag for ingredient icons
+  const positions = [
+    { top: '20%', left: '15%', transform: 'rotate(-15deg)' },
+    { top: '25%', right: '20%', transform: 'rotate(10deg)' },
+    { top: '40%', left: '10%', transform: 'rotate(25deg)' },
+    { top: '45%', right: '15%', transform: 'rotate(-20deg)' },
+    { top: '60%', left: '20%', transform: 'rotate(15deg)' },
+    { top: '65%', right: '25%', transform: 'rotate(-10deg)' },
+    { top: '75%', left: '25%', transform: 'rotate(-25deg)' },
+    { top: '80%', right: '20%', transform: 'rotate(20deg)' },
+  ]
+
+  return positions[index % positions.length]
 }
 
 const downloadChipsImage = async () => {
@@ -730,6 +1043,16 @@ const startCooking = () => {
   width: 100%;
 }
 
+.ingredients-in-pan :deep(.ingredient-tag) {
+  background: white;
+  color: var(--purple);
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 .instruction-text {
   font-family: 'Dekko';
   font-weight: normal;
@@ -770,13 +1093,11 @@ const startCooking = () => {
 .chef-cook-icon {
   width: 100%;
   height: 100%;
-  opacity: 0.6;
 }
 
 .cookbook-icon {
   width: 100%;
   height: 100%;
-  opacity: 0.6;
 }
 
 /* Disabled dock items */
@@ -1236,24 +1557,29 @@ const startCooking = () => {
 /* Simplified Text Overlay */
 .bag-text-overlay {
   position: absolute;
-  top: 45%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 80%;
 }
 
 .bag-text-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
   padding: 0rem 0.5rem 1rem 0.5rem;
+  position: relative;
+  z-index: 1;
+  height: 100%;
 }
 .bag-logo {
   width: 120px;
+  margin-left: 12px;
 }
 .bag-brand {
   font-family: 'Dekko';
@@ -1265,46 +1591,106 @@ const startCooking = () => {
 }
 
 .bag-flavor {
-  max-width: 200px;
+  max-width: 250px;
   word-wrap: break-word;
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
 
   .ingredient-tag {
     white-space: nowrap;
     font-family: 'Dela Gothic One', 'Arial Black', sans-serif;
-    font-size: 1.4rem;
+    font-size: 2.5rem;
     font-weight: 900;
     text-align: center;
-    line-height: 1.2;
     color: white;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
+    text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
+    mix-blend-mode: difference;
+  }
+  .ingredient-chef {
+    font-family: cursive;
+    white-space: normal;
+    font-size: 1.8rem;
   }
 
   .ingredient-vegetables {
-    background-color: rgba($color: #b0db9c, $alpha: 0.8);
+    font-family: cursive;
+    // color: #b0db9c;
   }
 
   .ingredient-spices {
-    background-color: rgba($color: #ff8282, $alpha: 0.8);
+    font-family: fantasy;
+    // color: #ff8282;
   }
 
   .ingredient-dairy {
-    background-color: rgba($color: #ffc785, $alpha: 0.8);
+    font-family: fantasy;
+    // color: #ffc785;
   }
 
   .ingredient-meat {
-    background-color: rgba($color: #e78f81, $alpha: 0.8);
+    font-family: fantasy;
+    // color: #e78f81;
   }
 
   .ingredient-sauce {
-    background-color: rgba($color: #ff6500, $alpha: 0.8);
+    font-family: cursive;
+    // color: #ff6500;
   }
+}
+
+/* Bag distortion effect that works with html2canvas */
+.bag-distortion {
+  transform: perspective(1000px) rotateX(5deg) skew(-2deg, 1deg);
+  transform-origin: center;
+}
+
+/* Chef Info Overlay */
+.chef-info-overlay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  z-index: 10;
+}
+
+.chef-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: solid 2px white;
+}
+
+.chef-name-overlay {
+  font-family: 'Dekko', sans-serif;
+  font-size: 1.4rem;
+  color: white;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Ingredient Icons */
+.ingredient-icons {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.2px;
+}
+
+.ingredient-icon {
+  width: 50px;
+  object-fit: contain;
+  opacity: 0.8;
 }
 /* Top Text */
 .top-text {

@@ -1,7 +1,13 @@
 <template>
-  <div class="ingredient-tag" @click="removeIngredient">
-    <span class="ingredient-icon">✕</span>
+  <div
+    class="ingredient-tag"
+    @click="handleRemove"
+    :title="`Cliquer pour retirer ${ingredient.name}`"
+  >
     <span class="ingredient-name">{{ ingredient.name }}</span>
+    <button class="remove-button" @click.stop="handleRemove" aria-label="Retirer cet ingrédient">
+      ×
+    </button>
   </div>
 </template>
 
@@ -15,45 +21,71 @@ const props = defineProps({
 
 const emit = defineEmits(['remove'])
 
-const removeIngredient = () => {
+const handleRemove = () => {
   emit('remove', props.ingredient.id)
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .ingredient-tag {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: white;
+  color: var(--purple);
+  border: 1px solid #e0e0e0;
   border-radius: 20px;
   padding: 0.5rem 0.75rem;
-  margin: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  user-select: none;
+  min-width: fit-content;
 }
 
 .ingredient-tag:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: scale(0.95);
+  background: #f8f9fa;
+  border-color: #d0d0d0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.ingredient-icon {
-  width: 16px;
-  height: 16px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: bold;
-  color: #666;
+.ingredient-tag:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .ingredient-name {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #333;
+  flex: 1;
+  white-space: nowrap;
+}
+
+.remove-button {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.remove-button:hover {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.remove-button:active {
+  background: #e0e0e0;
 }
 </style>
