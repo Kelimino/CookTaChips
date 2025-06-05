@@ -743,6 +743,12 @@ const ingredientData = {
         category: 'sauce',
         icon: '/images/ingredients/hollandaise.png',
       },
+      {
+        id: 'sauce-15',
+        name: 'Houmous',
+        category: 'sauce',
+        icon: '/images/ingredients/houmous.png',
+      },
     ],
   },
 }
