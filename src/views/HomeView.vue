@@ -1641,7 +1641,7 @@ const startCooking = () => {
   align-items: center;
   justify-content: center;
   height: 80%;
-  background: radial-gradient(circle, rgba(247, 243, 223, 0.5) 20%, rgba(251, 219, 147, 0) 40%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 20%, rgba(251, 219, 147, 0) 40%);
 }
 
 .bag-text-content {
